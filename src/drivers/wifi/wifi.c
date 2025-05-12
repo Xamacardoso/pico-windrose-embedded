@@ -8,6 +8,7 @@ wifi_config_t network_config = {
     .ssid = WIFI_SSID,
     .password = WIFI_PASSWORD,
     .api_host = SERVER_ADDRESS,
+    .api_port = SERVER_PORT,
     .api_endpoint = "/update"
 };
 
@@ -16,14 +17,14 @@ int wifi_init(wifi_config_t *network_config){
 
     // Initialise the Wi-Fi chip
     if (cyw43_arch_init()) {
-        printf("[WIFI INIT]: Falha ao conectar ao WiFi...\n");
+        printf("[WIFI INIT]: Falha ao inicializar chip...\n");
         return -1;
     }
 
     // Enable wifi station
     cyw43_arch_enable_sta_mode();
 
-    if (cyw43_arch_wifi_connect_timeout_ms(network_config->ssid, network_config->password, CYW43_AUTH_WPA2_AES_PSK, 30000)) {
+    if (cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 20000)) {
         printf("[WIFI INIT]: Falha ao conectar ao WiFi\n");
         return 1;
     } else {
@@ -128,7 +129,7 @@ void connect_to_server(const ip_addr_t *ipaddr) {
     }
 
     tcp_busy = true;
-    err_t err = tcp_connect(global_pcb, ipaddr, 80, on_connected);
+    err_t err = tcp_connect(global_pcb, ipaddr, SERVER_PORT, on_connected);
     if (err != ERR_OK) {
         printf("[TCP]: Erro ao conectar: %d\n", err);
         tcp_abort(global_pcb);
@@ -141,9 +142,10 @@ void connect_to_server(const ip_addr_t *ipaddr) {
 void dns_callback(const char *name, const ip_addr_t *ipaddr, void *arg) {
     if (!ipaddr) {
         printf("[DNS]: Falha ao resolver %s\n", name);
-        tcp_busy = false;
         return;
     }
+
+    tcp_busy = false;
 
     printf("[DNS]: IP resolvido: %s\n", ipaddr_ntoa(ipaddr));
     connect_to_server(ipaddr);
@@ -179,12 +181,14 @@ void send_http_post(joystick_data_t joystick, button_data_t buttons, float temp)
     static ip_addr_t resolved_ip;
 
     tcp_busy = true;
+        
     // Iniciando resolucao DNS
     err_t err = dns_gethostbyname(network_config.api_host, &resolved_ip, dns_callback, NULL);
     
     if (err == ERR_OK) {
         // IP já em cache
         printf("[DNS]: IP já em cache\n");
+        tcp_busy = false;
         connect_to_server(&resolved_ip);
     }
     else if (err == ERR_INPROGRESS) {
@@ -210,8 +214,8 @@ void check_connection_timeout(void) {
             connection_start_time = current_time;
         }
         
-        // Verificar timeout (10 segundos)
-        if (current_time - connection_start_time > 10000) {
+        // Verificar timeout (0,5 segundos)
+        if (current_time - connection_start_time > 500) {
             printf("[TCP]: Timeout da conexão, liberando recursos\n");
             if (global_pcb) {
                 tcp_abort(global_pcb);

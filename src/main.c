@@ -10,7 +10,7 @@
 extern void check_connection_timeout(void);
 
 // Controle de taxa de envio
-#define SEND_INTERVAL_MS 2000  // Enviar dados a cada 2 segundos
+#define SEND_INTERVAL_MS 1000  // Enviar dados a cada 2 segundos
 static uint32_t last_send_time = 0;
 
 void setup(){
@@ -45,15 +45,15 @@ int main()
         check_connection_timeout();
         
         // Ler os sensores
-        buttons.button_a = !gpio_get(0); // Lê o botão A
-        buttons.button_b = !gpio_get(1); // Lê o botão B
+        buttons.button_a = !gpio_get(BUTTON_A); // Lê o botão A
+        buttons.button_b = !gpio_get(BUTTON_B); // Lê o botão B
         joystick.x = read_joystick_x();
         joystick.y = read_joystick_y();
         temp = read_temperature(); // Lê a temperatura do sensor interno
 
         // Exibe os valores lidos
-        printf("[MAIN]: Joy X: %d || Joy Y: %d || Btn A: %d ||  Btn B: %d || Temp: %.2f C\n", 
-               joystick.x, joystick.y, buttons.button_a, buttons.button_b, temp);
+        // printf("[MAIN]: Joy X: %d || Joy Y: %d || Btn A: %d ||  Btn B: %d || Temp: %.2f C\n", 
+            //    joystick.x, joystick.y, buttons.button_a, buttons.button_b, temp);
         
         // Controle de taxa de envio de dados
         uint32_t current_time = to_ms_since_boot(get_absolute_time());

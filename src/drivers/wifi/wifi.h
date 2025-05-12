@@ -18,11 +18,12 @@
 #include "../adc/joystick.h"
 
 // Configuração do servidor (substitua pelo seu SSID real e senha)
-#define WIFI_SSID "Xaxau"
-#define WIFI_PASSWORD "ponguila"
+#define WIFI_SSID "virtual-NET12"
+#define WIFI_PASSWORD "tcs131728"
 
 // IP do servidor e porta (substitua pelo IP real do servidor)
-#define SERVER_ADDRESS "http://pico-windrose-backend.onrender.com"
+#define SERVER_ADDRESS "shinkansen.proxy.rlwy.net"
+#define SERVER_PORT 59788
 
 // Variáveis globais para o callback de conexão de rede
 extern char request_buffer[256];
@@ -34,6 +35,7 @@ typedef struct {
     char *ssid;
     char *password;
     char *api_host;
+    uint16_t api_port;
     char *api_endpoint;
 } wifi_config_t;
 
@@ -60,5 +62,16 @@ void cleanup_connection(void);
 void dns_callback(const char *name, const ip_addr_t *ipaddr, void *arg);
 char *createJson(joystick_data_t joystick, button_data_t buttons, float temp);
 void check_connection_timeout(void);
+
+
+
+// static bool haveConnection;
+// static int retries;
+// static volatile bool can_send;
+
+// err_t tcp_client_recv(void arg, struct tcp_pcbtpcb, struct pbuf *p, err_t err);
+// void send_data_to_server();
+// void create_tcp_connection();
+// void close_tcp_connection();
 
 #endif
