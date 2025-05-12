@@ -31,6 +31,10 @@ include(pico_sdk_import.cmake)
 project(pico-windrose-embedded C CXX ASM)
 
 file(GLOB SRC_FILES src/*.c)
+file(GLOB CJSON_FILES
+    external/cJSON/cJSON.c
+    external/cJSON/cJSON_Utils.c
+    )
 file(GLOB_RECURSE DRIVER_FILES src/drivers/*.c)
 
 # Initialise the Raspberry Pi Pico SDK
@@ -40,6 +44,7 @@ pico_sdk_init()
 add_executable(pico-windrose-embedded 
     ${DRIVER_FILES}
     ${SRC_FILES}
+    ${CJSON_FILES}
     )
 
 pico_set_program_name(pico-windrose-embedded "pico-windrose-embedded")
